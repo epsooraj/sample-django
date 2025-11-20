@@ -123,36 +123,51 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 # AWS S3 Configuration
-USE_S3 = config('USE_S3', default=False, cast=bool)
+# Static files (CSS, JavaScript, Images)
+
+USE_S3 = config("USE_S3", default=False, cast=bool)
+
+# Always set a filesystem STATIC_ROOT to avoid ImproperlyConfigured errors
+STATIC_ROOT = BASE_DIR / "staticfiles"
+# Recommended canonical URL values (leading/trailing slashes)
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+
+# Directories where Django will search for static files in development
+STATICFILES_DIRS = [
+    BASE_DIR / "hello" / "static",
+]
 
 if USE_S3:
-    # AWS S3 settings
-    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='us-east-1')
-    AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', default=None)
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-    AWS_DEFAULT_ACL = config('AWS_DEFAULT_ACL', default='public-read')
-    AWS_S3_VERIFY = config('AWS_S3_VERIFY', default=True, cast=bool)
-    
-    # Static files
-    AWS_STATIC_LOCATION = config('AWS_STATIC_LOCATION', default='static')
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"}/{AWS_STATIC_LOCATION}/'
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    
-    # Media files
-    AWS_MEDIA_LOCATION = config('AWS_MEDIA_LOCATION', default='media')
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"}/{AWS_MEDIA_LOCATION}/'
+    # AWS S3 settings (ensure these env vars are set)
+    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="us-east-1")
+    AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN", default=None)
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_DEFAULT_ACL = config("AWS_DEFAULT_ACL", default="public-read")
+    AWS_S3_VERIFY = config("AWS_S3_VERIFY", default=True, cast=bool)
+
+    AWS_STATIC_LOCATION = config("AWS_STATIC_LOCATION", default="static")
+    AWS_MEDIA_LOCATION = config("AWS_MEDIA_LOCATION", default="media")
+
+    # Use custom domain if provided, otherwise bucket.s3.amazonaws.com
+    base_s3 = AWS_S3_CUSTOM_DOMAIN or f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    STATIC_URL = f"https://{base_s3}/{AWS_STATIC_LOCATION}/"
+    MEDIA_URL = f"https://{base_s3}/{AWS_MEDIA_LOCATION}/"
+
+    # Use s3 storage backends
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    # You can still keep STATIC_ROOT for local tools (collectstatic won't use it when using S3 storage)
+    # STATIC_ROOT remains BASE_DIR / 'staticfiles' (above)
 else:
-    # Local storage settings
-    STATIC_URL = 'static/'
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
-    MEDIA_URL = 'media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+    # Local dev: collect static into STATIC_ROOT and serve from STATIC_URL
+    # MEDIA_ROOT for uploaded files
+    MEDIA_ROOT = BASE_DIR / "media"
+    # STATIC_URL and STATIC_ROOT already set above
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
