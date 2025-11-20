@@ -199,12 +199,19 @@ This application is configured to run with Gunicorn as the WSGI HTTP server for 
 
 #### Step 2: Start Gunicorn
 
-**Basic command**:
+**Activate virtual environment** (if using one):
+```bash
+source venv/bin/activate
+```
+
+**Start Gunicorn**:
+
+Basic command:
 ```bash
 gunicorn sampleapp.wsgi:application --bind 0.0.0.0:8000 --workers 4
 ```
 
-**With additional options**:
+With additional options:
 ```bash
 gunicorn sampleapp.wsgi:application \
     --bind 0.0.0.0:8000 \
@@ -213,11 +220,6 @@ gunicorn sampleapp.wsgi:application \
     --access-logfile - \
     --error-logfile - \
     --log-level info
-```
-
-**Using the startup script**:
-```bash
-./start_gunicorn.sh
 ```
 
 #### Step 3: Configure Reverse Proxy (Recommended)
@@ -307,7 +309,6 @@ sample-django/
 ├── .env                  # Environment variables (not in git)
 ├── .env.example          # Environment variables template
 ├── requirements.txt      # Python dependencies
-├── start_gunicorn.sh     # Gunicorn startup script
 └── manage.py             # Django management script
 ```
 
