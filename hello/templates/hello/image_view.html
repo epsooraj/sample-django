@@ -54,7 +54,7 @@
     <div class="container">
         <h1>{{ title }}</h1>
         {% if image_url %}
-            <img src="{% static image_url %}" alt="{{ title }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="{{ image_url }}" alt="{{ title }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="image-placeholder" style="display: none;">
                 Image not found. Please add your image to: hello/static/hello/sample-image.jpg
             </div>
